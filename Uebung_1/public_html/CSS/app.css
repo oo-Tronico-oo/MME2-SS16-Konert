@@ -45,7 +45,7 @@ main {
     min-height: calc(100vh - 100px);
     width: 90%;
     max-width: calc(100% - 100px);
-    background:  #A9F5D0;
+    background:  lightyellow;
 }
 
 main article {
