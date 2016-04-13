@@ -16,7 +16,8 @@ function init() {
 
         for (var t = 0; t < allButtons.length; t++) {
             var btn = allButtons[t];
-            btn.addEventListener("click", handleButton(btn, video));
+            console.log(btn);
+            btn.addEventListener("click", function (event) {handleButton(btn, video)});
         }
     }
 }
@@ -24,13 +25,14 @@ function init() {
 function handleButton(btn, video) {
     switch (btn.innerHTML) {
         case 'play' :
-            video.play();
+            console.log(video);
+            //video.play();
             break;
         case 'break' :
-            video.pause();
+            //video.pause();
             break;
         case 'stop' :
-            video.stop();
+            //video.stop();
             break;
     }
 }
