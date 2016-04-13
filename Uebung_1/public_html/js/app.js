@@ -4,25 +4,33 @@
  */
 
 // startet die Funktion init wenn DOM vollständig geladen wurde
-window.addEventListener("load",init, false);
+window.addEventListener("load", init, false);
 
-// manipuliert jedes Videoelement
-function init(){
-    var allVideoContainer = document.getElementsByTagName("video");
-    
-    for(var i = 0; i < allVideoContainer.length; i++){
-        containerBuild(allVideoContainer[i]);
+//
+function init() {
+    var allVideoContainer = document.getElementById("allVideo").getElementsByTagName("section");
+
+    for (var i = 0; i < allVideoContainer.length; i++) {
+        var allButtons = allVideoContainer[i].getElementsByTagName("button");
+        var video = allVideoContainer[i].getElementsByTagName("video");
+
+        for (var t = 0; t < allButtons.length; t++) {
+            var btn = allButtons[t];
+            btn.addEventListener("click", handleButton(btn, video));
+        }
     }
 }
 
-// fügt jedem Videoelement Interaktionsbutton hinzu
-function containerBuild(videoContainer){
-    console.log(videoContainer);
-    //videoContainer.insertAdjacentHTML('beforebegin', '<section>');
-    //videoContainer.insertAdjacentHTML('afterend', 'cda</section>');
-}
-
-// meldet Eventhändler an
-function buttonEvent(button){
-    
+function handleButton(btn, video) {
+    switch (btn.innerHTML) {
+        case 'play' :
+            video.play();
+            break;
+        case 'break' :
+            video.pause();
+            break;
+        case 'stop' :
+            video.stop();
+            break;
+    }
 }
