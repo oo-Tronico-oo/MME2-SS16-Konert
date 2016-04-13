@@ -28,17 +28,18 @@ function init() {
 function handleButton(event) {
     var btn = event.target;
     console.log(btn);
-    var video = btn.parentNode.getElementsByTagName("video");
+    var video = btn.parentNode.getElementsByTagName("video")[0];
     console.log(video);
     switch (btn.innerHTML) {
         case 'play' :
-            //video.play();
+            video.play();
             break;
         case 'break' :
-            //video.pause();
+            video.pause();
             break;
         case 'stop' :
-            //video.stop();
+            video.currentTime = 0;
+            video.pause();
             break;
     }
 }
