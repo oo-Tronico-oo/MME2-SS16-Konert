@@ -83,3 +83,11 @@ footer {
     margin: 1.5em;
     background: violet;
 }*/
+
+button {
+    background-color: #4CAF50; /* grün*/
+    border: none;
+    color: white;
+    padding: 5px 12px;
+    text-align: center;
+}
