@@ -16,13 +16,18 @@ function init() {
 
         for (var t = 0; t < allButtons.length; t++) {
             var btn = allButtons[t];
-            console.log(btn);
-            btn.addEventListener("click", function (event) {handleButton(btn, video)});
+            //console.log(btn);
+            btn.addEventListener("click", function (event) {
+                //console.log(event);
+                handleButton(event);
+            });
         }
     }
 }
 
-function handleButton(btn, video) {
+function handleButton(event) {
+    var btn = event.target;
+    console.log(btn);
     switch (btn.innerHTML) {
         case 'play' :
             console.log(video);
