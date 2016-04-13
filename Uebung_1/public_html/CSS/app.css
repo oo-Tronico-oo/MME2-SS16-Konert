@@ -80,6 +80,7 @@ footer {
 
 button {
     background-color: #4CAF50; /* grün*/
+    width: 70px;
     border: none;
     color: white;
     padding: 5px 12px;
