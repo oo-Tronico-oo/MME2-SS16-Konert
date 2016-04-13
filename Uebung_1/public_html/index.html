@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
     Created on : 07.04.2016
-    Authors    : Loki, Tronico, X3phiroth
+    Authors    : Lisa Bitterling, Nico Nauendorf, Christoph Kozielski
 -->
 <html lang="en">
     <head>
@@ -12,29 +12,55 @@
         <script src="js/app.js"></script>
     </head>
     <body>
-        <header><h1>This is the header</h1></header>
-        <section id="content">
-            <nav><p>This is the navigation</p></nav>
-            <main>
-                <p>TODO write content</p>
-
-                <video muted controls>
-                    <source src=http://techslides.com/demos/sample-videos/small.webm type=video/webm>
-                </video>
-
-                <video muted controls>
-                    <source src=http://techslides.com/demos/sample-videos/small.ogv type=video/ogg>
-                </video>
-
-                <video muted controls>
-                    <source src=http://techslides.com/demos/sample-videos/small.mp4 type=video/mp4>
-                </video>
-
-                <video muted controls>
-                    <source src=http://techslides.com/demos/sample-videos/small.3gp type=video/3gp>
-                </video>
-            </main>
-        </section>
+        <header><h1>Mini YouTube App</h1></header>
+        <nav>
+            <h3>Inhalt</h3>
+            <a href="#">Home</a>
+            <a href="#">Highlights</a>
+            <a href="#">Impressum</a>
+        </nav>
+        <main>
+            <article>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
+                commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus
+                et magnis dis parturient montes, nascetur ridiculus mus. Donec quam
+                felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla
+                consequat massa quis enim. Donec pede justo, fringilla vel, aliquet
+                nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a,
+                venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium.
+                Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi.
+                Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu,
+                consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in,
+                viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus
+                varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies
+                nisi vel augue.
+            </article>
+            <section id="allVideo">
+                <section>
+                    <video>
+                        <source src=http://techslides.com/demos/sample-videos/small.webm type=video/webm>
+                    </video><br>
+                    <button>play</button>
+                    <button>break</button>
+                    <button>stop</button>
+                </section>
+                <section>
+                    <video>
+                        <source src=http://techslides.com/demos/sample-videos/small.ogv type=video/ogg>
+                    </video>
+                    <button>play</button>
+                    <button>break</button>
+                    <button>stop</button>
+                </section>
+                <section>
+                    <video>
+                        <source src=http://techslides.com/demos/sample-videos/small.mp4 type=video/mp4>
+                    </video>
+                    <button>play</button>
+                    <button>break</button>
+                    <button>stop</button>
+                </section>
+            </section>
+        </main>
         <footer><p>This is the footer</p></footer>
     </body>
 </html>
