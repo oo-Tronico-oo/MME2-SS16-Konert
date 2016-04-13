@@ -38,7 +38,6 @@ function init() {
 function handleButton(event) {
     // get the button that triggered the event
     var btn = event.target;
-    console.log(btn);
     // get the video to this button
     var video = btn.parentNode.getElementsByTagName("video")[0];
     
