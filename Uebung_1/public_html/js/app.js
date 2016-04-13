@@ -30,13 +30,16 @@ function handleButton(event) {
     switch (btn.innerHTML) {
         case 'play' :
             video.play();
+            btn.innerHTML = "break";
             break;
         case 'break' :
             video.pause();
+            btn.innerHTML = "play";
             break;
         case 'stop' :
             video.currentTime = 0;
             video.pause();
+            video.parentNode.getElementsByTagName("button")[0].innerHTML = "play";
             break;
     }
 }
