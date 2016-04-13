@@ -28,9 +28,10 @@ function init() {
 function handleButton(event) {
     var btn = event.target;
     console.log(btn);
+    var video = btn.parentNode.getElementsByTagName("video");
+    console.log(video);
     switch (btn.innerHTML) {
         case 'play' :
-            console.log(video);
             //video.play();
             break;
         case 'break' :
