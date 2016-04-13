@@ -12,13 +12,11 @@ function init() {
 
     for (var i = 0; i < allVideoContainer.length; i++) {
         var allButtons = allVideoContainer[i].getElementsByTagName("button");
-        var video = allVideoContainer[i].getElementsByTagName("video");
 
         for (var t = 0; t < allButtons.length; t++) {
             var btn = allButtons[t];
-            //console.log(btn);
+            
             btn.addEventListener("click", function (event) {
-                //console.log(event);
                 handleButton(event);
             });
         }
@@ -27,9 +25,8 @@ function init() {
 
 function handleButton(event) {
     var btn = event.target;
-    console.log(btn);
     var video = btn.parentNode.getElementsByTagName("video")[0];
-    console.log(video);
+    
     switch (btn.innerHTML) {
         case 'play' :
             video.play();
