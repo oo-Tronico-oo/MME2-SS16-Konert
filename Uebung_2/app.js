@@ -11,14 +11,20 @@
 let express = require("express");
 let app = express();
 
-app.use("/static", express.static("static"));
+/**
+ * Static directory
+ */
+app.use(`/static`, express.static(`${__dirname}/static`));
 
 /**
  * Handler for get requests
  */
-app.get("/*", function(req, res) {
-        console.log(`Anfrage angekommen.`);
-        res.send(`<h1>Hello World</h1>`);
+app.get(`/time`, function(req, res, next) {
+    res.set('Content-Type', 'text/plain');
+    res.send(`${Date.now()}`);
+});
+app.all(`/*`, function(req, res) {
+    res.send(`<h1>Hello World</h1>`);
 });
 
 /**
