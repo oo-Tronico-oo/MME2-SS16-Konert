@@ -3,18 +3,22 @@
  Authors    : Lisa Bitterling, Christoph Kozielski, Nico Nauendorf
  */
 
+"use strict"
+
 /**
  * Requirements
  */
 let express = require("express");
 let app = express();
 
+app.use("/static", express.static("static"));
+
 /**
  * Handler for get requests
  */
 app.get("/*", function(req, res) {
-    console.log(`Anfrage angekommen.`);
-    res.send(`<h1>Hello World</h1>`);
+        console.log(`Anfrage angekommen.`);
+        res.send(`<h1>Hello World</h1>`);
 });
 
 /**
