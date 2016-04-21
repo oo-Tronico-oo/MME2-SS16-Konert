@@ -17,20 +17,23 @@ let app = express();
 app.use(`/static`, express.static(`${__dirname}/static`));
 
 /**
- * Handler for get requests
+ * Handler for /time path for get requests
  */
 app.get(`/time`, function(req, res, next) {
-    res.set('Content-Type', 'text/plain');
+    res.set(`Content-Type`, `text/plain`);
     res.send(`${Date.now()}`);
 });
-app.all(`/*`, function(req, res) {
-    res.send(`<h1>Hello World</h1>`);
-});
-
 /**
- * Start a listening server at the given port
+ * Handler for all requests at every other path
  */
-let port = 3000;
-let server = app.listen(port, function() {
-    console.log(`Server is now listening at port ${port}.`);
+app.all(`/*`, function(req, res) {
+    res.send('<!DOCTYPE html>' +
+        '<html lang="en">' +
+        '<head><meta charset="utf-8"></head>' +
+        '<body><h1>Hello World!</h1></body>' +
+        '</html>'
+    );
+});
+var server = app.listen(3000, function () {
+    console.log('helloworld app is ready and listening at http://localhost:3000');
 });
