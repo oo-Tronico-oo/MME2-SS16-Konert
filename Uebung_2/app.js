@@ -6,21 +6,36 @@
 /**
  * Requirements
  */
-let express = require("express");
-let app = express();
+//let express = require("express");
+//let app = express();
+//
+///**
+// * Handler for get requests
+// */
+//app.get("/*", function(req, res) {
+//    console.log(`Anfrage angekommen.`);
+//    res.send(`<h1>Hello World</h1>`);
+//});
+//
+///**
+// * Start a listening server at the given port
+// */
+//let port = 3000;
+//let server = app.listen(port, function() {
+//    console.log(`Server is now listening at port ${port}.`);
+//});
 
-/**
- * Handler for get requests
- */
-app.get("/*", function(req, res) {
-    console.log(`Anfrage angekommen.`);
-    res.send(`<h1>Hello World</h1>`);
+var express = require('express');
+var app = express();
+// add and configure Route /
+app.get('/', function (req, res) {
+    res.send('<!DOCTYPE html>' +
+            '<html lang="en">' +
+            '<head><meta charset="utf-8"></head>' +
+            '<body><h1>Hello World!</h1></body>' +
+            '</html>'
+            );
 });
-
-/**
- * Start a listening server at the given port
- */
-let port = 3000;
-let server = app.listen(port, function() {
-    console.log(`Server is now listening at port ${port}.`);
+var server = app.listen(3000, function () {
+    console.log('helloworld app is ready and listening at http://localhost:3000');
 });
