@@ -1,0 +1,23 @@
+{
+  "name": "uebung_2",
+  "version": "1.0.0",
+  "description": "MME_2_SoSe_2016_Konert_Uebung_2",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.13.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oo-Tronico-oo/MME2-SS16-Konert.git"
+  },
+  "author": "Lisa Bitterling, Christoph Kozielski, Nico Nauendorf",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oo-Tronico-oo/MME2-SS16-Konert/issues"
+  },
+  "homepage": "https://github.com/oo-Tronico-oo/MME2-SS16-Konert#readme"
+}
