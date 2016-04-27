@@ -3,7 +3,7 @@
  Authors    : Lisa Bitterling, Christoph Kozielski, Nico Nauendorf
  */
 
-"use strict"
+"use strict";
 
 /**
  * Requirements
@@ -16,14 +16,17 @@ var cache;
 /**
  * Static directory
  */
-app.use('/static', express.static(__dirname + '/static'));
+app.use("/static", express.static(__dirname + '/static'));
 
 /**
  * Handler for /time path for get requests
+ *
+ * @param req represents the HTTP request
+ * @param res represents the HTTP response
  */
 app.get('/time', function(req, res) {
     res.set('Content-Type', 'text/plain');
-    var date = new Date(Date.now());
+    var date = new Date();
     res.write(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds());
     res.send();
 });
@@ -33,6 +36,9 @@ app.get('/time', function(req, res) {
  *
  * compare: blocking vs. non-blocking
  * http://code-maven.com/reading-a-file-with-nodejs
+ *
+ * @param req represents the HTTP request
+ * @param res represents the HTTP response
  */
 app.get('/file.txt', function(req, res){
     var time = process.hrtime()[1];
@@ -55,6 +61,9 @@ app.get('/file.txt', function(req, res){
 
 /**
  * Handler for all requests at every other path
+ *
+ * @param req represents the HTTP request
+ * @param res represents the HTTP response
  */
 app.all('/*', function(req, res) {
     res.send('<!DOCTYPE html>' +
