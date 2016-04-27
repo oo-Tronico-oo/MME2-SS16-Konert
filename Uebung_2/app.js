@@ -16,15 +16,18 @@ var cache;
 /**
  * Static directory
  */
-app.use('/static', express.static('${__dirname}/static'));
+app.use('/static', express.static(__dirname + '/static'));
 
 /**
  * Handler for /time path for get requests
  */
 app.get('/time', function(req, res) {
     res.set('Content-Type', 'text/plain');
-    res.send('${Date.now()}');
+    var date = new Date(Date.now());
+    res.write(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds());
+    res.send();
 });
+
 /**
  * Handler for cache.txt path for get requests
  *
@@ -36,15 +39,15 @@ app.get('/file.txt', function(req, res){
     if (cache) {
         res.set('Content-Type', 'text/plain');
         res.write(cache);
-        res.write('\n\n${process.hrtime()[1] - time}');
+        res.write('\n\n' + (process.hrtime()[1] - time));
         res.send();
     } else {
-        fs.readFile('${__dirname}/static/resource/file.txt', function (err, data) {
+        fs.readFile(__dirname + '/static/resource/file.txt', function (err, data) {
             if (err) return console.log(err);
             cache = data;
             res.set('Content-Type', 'text/plain');
             res.write(data);
-            res.write('\n\n${process.hrtime()[1] - time}');
+            res.write('\n\n' + (process.hrtime()[1] - time));
             res.send();
         });
     }
@@ -61,10 +64,6 @@ app.all('/*', function(req, res) {
         '</html>'
     );
 });
-
-function memoizer(memo, func) {
-    
-}
 
 app.listen(3000, function () {
     console.log('helloworld app is ready and listening at http://localhost:3000');
