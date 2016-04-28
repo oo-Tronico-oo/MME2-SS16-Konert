@@ -1,6 +1,7 @@
 /*
  Created on : 21.04.2016
  Authors    : Lisa Bitterling, Christoph Kozielski, Nico Nauendorf
+ Function:  : Our main node js server file. Executed when started
  */
 
 "use strict";
@@ -28,7 +29,7 @@ app.get('/time', function(req, res) {
     res.set('Content-Type', 'text/plain');
     var date = new Date();
     res.write(date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + '.' + date.getMilliseconds());
-    res.send();
+    res.end();
 });
 
 /**
@@ -46,7 +47,7 @@ app.get('/file.txt', function(req, res){
         res.set('Content-Type', 'text/plain');
         res.write(cache);
         res.write('\n\n' + (process.hrtime()[1] - time));
-        res.send();
+        res.end();
     } else {
         fs.readFile(__dirname + '/static/resource/file.txt', function (err, data) {
             if (err) return console.log(err);
@@ -54,7 +55,7 @@ app.get('/file.txt', function(req, res){
             res.set('Content-Type', 'text/plain');
             res.write(data);
             res.write('\n\n' + (process.hrtime()[1] - time));
-            res.send();
+            res.end();
         });
     }
 });
