@@ -119,6 +119,16 @@ app.route('/users/:id')
         .put(function (req, res, next) {
             store.replace('users', req.params.id, req.body);
             res.status(200).end();
+        })
+        .patch(function (req, res, next){
+            var patchObj = req.body;
+            var patchElements = Object.keys(patchObj);
+            var user = store.select('users', req.params.id);
+            for(var i in patchElements){
+                user.patchElements[i] = patchObj.patchElements[i];
+            }
+            store.replace('users', req.params.id, user);
+            res.status(200).end();
         });
         
 // CatchAll for the rest (unfound routes/resources ********
