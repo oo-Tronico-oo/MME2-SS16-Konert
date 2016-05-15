@@ -65,7 +65,7 @@ app.use(function (req, res, next) {
 // Routes  TWEETS ***************************************
 
 app.get('/tweets', function (req, res, next) {
-    res.json(store.select('tweets'));
+    res.json(setObjURL(store.select('tweets'), req));
 });
 app.post('/tweets', function (req, res, next) {
     var id = store.insert('tweets', req.body);
@@ -73,7 +73,7 @@ app.post('/tweets', function (req, res, next) {
     res.status(201).json(store.select('tweets', id));
 });
 app.get('/tweets/:id', function (req, res, next) {
-    res.json(store.select('tweets', req.params.id));
+    res.json(setObjURL(store.select('tweets', req.params.id), req));
 });
 app.delete('/tweets/:id', function (req, res, next) {
     store.remove('tweets', req.params.id);
@@ -89,7 +89,13 @@ app.put('/tweets/:id', function (req, res, next) {
 
 app.route('/users')
         .get(function (req, res, next) {
-            res.json(store.select('users'));
+            var userList = store.select('users');
+            var user;
+            for(var i in userList){
+                user = userList[i];
+                setTweetsHref(user, req.originalUrl + "/" + user.id);
+            }
+            res.json(setObjURL(userList, req));
         })
         .post(function (req, res, next) {
             var id = store.insert('users', req.body);
@@ -99,7 +105,12 @@ app.route('/users')
 
 app.route('/users/:id')
         .get(function (req, res, next) {
-            res.json(store.select('users', req.params.id));
+            var user = store.select('users', req.params.id);
+            if (user === undefined) res.json(user);
+            else {
+                user = setTweetsHref(user, req.originalUrl);
+                res.json(setObjURL(user, req));
+            };
         })
         .delete(function (req, res, next) {
             store.remove('users', req.params.id);
@@ -156,4 +167,40 @@ app.listen(3000, function (err) {
     else {
         console.log('Listening on port 3000');
     }
+});
+
+// set the href to objects
+var setObjURL = (function(obj, req){
+    var url = req.protocol + '://' + req.get('host') + req.originalUrl;
+    
+    if (obj instanceof Array){
+        for(var o in obj){
+            obj[o].href = url + obj[o].id;
+        };
+        obj = {
+            href: url,
+            items: obj
+        };
+    }else {
+        obj.href = url;
+    }
+    
+    return obj;
+});
+
+// set tweets-href to user
+var setTweetsHref = (function(user, originalUrl){
+    var basisUrl = "http://localhost:3000";
+    var listOfTweets = store.select('tweets');
+    var tweet;
+    var tempList = [];
+    for(var i in listOfTweets){
+        tweet = listOfTweets[i];
+        if(tweet.creator.href === basisUrl + originalUrl){
+            tempList.push(basisUrl + "/tweets/" + tweet.id);
+        };
+    };
+    //console.log(tempList);
+    if (tempList.length > 0)user.tweets = tempList;
+    return user;
 });
