@@ -18,6 +18,8 @@ var path = require('path');
 var express = require('express');
 var bodyParser = require('body-parser');
 
+var url = require('url');
+
 // our own modules imports
 var store = require('./blackbox/store.js');
 
@@ -90,10 +92,11 @@ app.put('/tweets/:id', function (req, res, next) {
 app.route('/users')
         .get(function (req, res, next) {
             var userList = store.select('users');
+            var expand = req.query.expand;
             var user;
             for(var i in userList){
                 user = userList[i];
-                setTweetsHref(user, req.originalUrl + "/" + user.id);
+                setTweetsHref(user, (expand === "tweets")?true:false);
             }
             res.json(setObjURL(userList, req));
         })
@@ -106,9 +109,10 @@ app.route('/users')
 app.route('/users/:id')
         .get(function (req, res, next) {
             var user = store.select('users', req.params.id);
+            var expand = req.query.expand;
             if (user === undefined) res.json(user);
             else {
-                user = setTweetsHref(user, req.originalUrl);
+                setTweetsHref(user, (expand === "tweets")?true:false);
                 res.json(setObjURL(user, req));
             };
         })
@@ -181,33 +185,38 @@ app.listen(3000, function (err) {
 
 // set the href to objects
 var setObjURL = (function(obj, req){
-    var url = req.protocol + '://' + req.get('host') + req.originalUrl;
+    
+    var baseUrl = req.protocol + '://' + req.get('host') + url.parse(req.url).pathname;
     
     if (obj instanceof Array){
         for(var o in obj){
-            obj[o].href = url + obj[o].id;
+            obj[o].href = baseUrl + obj[o].id;
         };
         obj = {
-            href: url,
+            href: baseUrl,
             items: obj
         };
     }else {
-        obj.href = url;
+        obj.href = baseUrl;
     }
     
     return obj;
 });
 
 // set tweets-href to user
-var setTweetsHref = (function(user, originalUrl){
-    var basisUrl = "http://localhost:3000";
+// if expand true, tweets are expanded
+var setTweetsHref = (function(user, expand){
+    var baseUrl = "http://localhost:3000";
     var listOfTweets = store.select('tweets');
     var tweet;
+    var tempObj;
     var tempList = [];
     for(var i in listOfTweets){
         tweet = listOfTweets[i];
-        if(tweet.creator.href === basisUrl + originalUrl){
-            tempList.push(basisUrl + "/tweets/" + tweet.id);
+        if(tweet.creator.href === baseUrl + "/users/" + user.id){
+            tempObj = {href: baseUrl + "/tweets/" + tweet.id};
+            if(expand) tempObj.tweet = tweet;
+            tempList.push(tempObj);
         };
     };
     //console.log(tempList);
