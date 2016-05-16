@@ -130,10 +130,15 @@ app.route('/users/:id')
             var patchElements = Object.keys(patchObj);
             var user = store.select('users', req.params.id);
             for(var i in patchElements){
-                user.patchElements[i] = patchObj.patchElements[i];
+                switch(patchElements[i]){
+                    case "firstname" : user.firstname = patchObj.firstname;break;
+                    case "lastname" : user.lastname = patchObj.lastname;break;
+                    default : res.status(418).end();
+                }
             }
             store.replace('users', req.params.id, user);
-            res.status(200).end();
+            res.status(200);
+            res.json(user);
         });
         
 // CatchAll for the rest (unfound routes/resources ********
