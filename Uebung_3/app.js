@@ -92,13 +92,14 @@ app.put('/tweets/:id', function (req, res, next) {
 app.route('/users')
         .get(function (req, res, next) {
             var userList = store.select('users');
-            var expand = req.query.expand;
+            var expand = (req.query.expand === "tweets")?true:false;
             var user;
             for(var i in userList){
                 user = userList[i];
-                setTweetsHref(user, (expand === "tweets")?true:false);
+                setTweetsHref(user, expand);
             }
-            res.json(setObjURL(userList, req));
+            if (user === undefined) res.json(user);
+            else res.json(setObjURL(userList, req));
         })
         .post(function (req, res, next) {
             var id = store.insert('users', req.body);
@@ -109,10 +110,10 @@ app.route('/users')
 app.route('/users/:id')
         .get(function (req, res, next) {
             var user = store.select('users', req.params.id);
-            var expand = req.query.expand;
+            var expand = (req.query.expand === "tweets")?true:false;
             if (user === undefined) res.json(user);
             else {
-                setTweetsHref(user, (expand === "tweets")?true:false);
+                setTweetsHref(user, expand);
                 res.json(setObjURL(user, req));
             };
         })
@@ -185,9 +186,9 @@ app.listen(3000, function (err) {
 
 // set the href to objects
 var setObjURL = (function(obj, req){
-    
     var baseUrl = req.protocol + '://' + req.get('host') + url.parse(req.url).pathname;
-    
+    // if obj is a list always make an object with href and items
+    // items is a list of objects and each gets a href
     if (obj instanceof Array){
         for(var o in obj){
             obj[o].href = baseUrl + obj[o].id;
@@ -196,10 +197,10 @@ var setObjURL = (function(obj, req){
             href: baseUrl,
             items: obj
         };
+    // else only set href to object
     }else {
         obj.href = baseUrl;
     }
-    
     return obj;
 });
 
@@ -211,6 +212,7 @@ var setTweetsHref = (function(user, expand){
     var tweet;
     var tempObj;
     var tempList = [];
+    // check all tweets, if creator === user
     for(var i in listOfTweets){
         tweet = listOfTweets[i];
         if(tweet.creator.href === baseUrl + "/users/" + user.id){
@@ -219,7 +221,6 @@ var setTweetsHref = (function(user, expand){
             tempList.push(tempObj);
         };
     };
-    //console.log(tempList);
+    //  add only attribut tweets, if user has tweets
     if (tempList.length > 0)user.tweets = tempList;
-    return user;
 });
