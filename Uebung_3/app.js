@@ -67,7 +67,7 @@ app.use(function (req, res, next) {
 // Routes  TWEETS ***************************************
 
 app.get('/tweets', function (req, res, next) {
-    res.json(setObjURL(store.select('tweets'), req));
+    res.json(setObjURL(getCopy(store.select('tweets')), req));
 });
 app.post('/tweets', function (req, res, next) {
     var id = store.insert('tweets', req.body);
@@ -75,7 +75,7 @@ app.post('/tweets', function (req, res, next) {
     res.status(201).json(store.select('tweets', id));
 });
 app.get('/tweets/:id', function (req, res, next) {
-    res.json(setObjURL(store.select('tweets', req.params.id), req));
+    res.json(setObjURL(getCopy(store.select('tweets', req.params.id)), req));
 });
 app.delete('/tweets/:id', function (req, res, next) {
     store.remove('tweets', req.params.id);
@@ -91,7 +91,7 @@ app.put('/tweets/:id', function (req, res, next) {
 
 app.route('/users')
         .get(function (req, res, next) {
-            var userList = store.select('users');
+            var userList = getCopy(store.select('users'));
             var expand = (req.query.expand === "tweets")?true:false;
             var user;
             for(var i in userList){
@@ -109,7 +109,7 @@ app.route('/users')
 
 app.route('/users/:id')
         .get(function (req, res, next) {
-            var user = store.select('users', req.params.id);
+            var user = getCopy(store.select('users', req.params.id));
             var expand = (req.query.expand === "tweets")?true:false;
             if (user === undefined) res.json(user);
             else {
@@ -228,4 +228,13 @@ var setTweetsHref = (function(user, expand){
     };
     //  add only attribut tweets, if user has tweets
     if (tempList.length > 0)user.tweets = tempList;
+});
+
+// returned a copy of the object
+var getCopy = (function(obj){
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    }
+    return copy;
 });
