@@ -191,7 +191,7 @@ var setObjURL = (function(obj, req){
     // items is a list of objects and each gets a href
     if (obj instanceof Array){
         for(var o in obj){
-            obj[o].href = baseUrl + obj[o].id;
+            obj[o].href = baseUrl + "/" + obj[o].id;
         };
         obj = {
             href: baseUrl,
