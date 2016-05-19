@@ -8,6 +8,7 @@
  * TODO: Look at the Routes-section (starting line 68) and start there to add your code 
  * 
  * @author Johannes Konert
+ * @editBy Lisa Bitterling, Christoph Kozielski, Nico Nauendorf
  * @licence CC BY-SA 4.0
  *
  */
@@ -28,6 +29,9 @@ var app = express();
 
 // base url from server
 var baseUrl;
+
+// if tweets expand (boolean)
+var expand;
 
 // Middleware ************************************
 app.use(express.static(path.join(__dirname, 'public')));
@@ -67,9 +71,10 @@ app.use(function (req, res, next) {
     }
 });
 
-// set the baseUrl
+// set the baseUrl and expand boolean
 app.use(function (req, res, next) {
     baseUrl = req.protocol + '://' + req.get('host');
+    expand = req.query.expand === "tweets";
     next(); // all OK, call next handler
 });
 
@@ -101,7 +106,6 @@ app.put('/tweets/:id', function (req, res, next) {
 app.route('/users')
         .get(function (req, res, next) {
             var userList = getCopy(store.select('users'));
-            var expand = (req.query.expand === "tweets")?true:false;
             var user;
             for(var i in userList){
                 user = userList[i];
@@ -119,7 +123,6 @@ app.route('/users')
 app.route('/users/:id')
         .get(function (req, res, next) {
             var user = getCopy(store.select('users', req.params.id));
-            var expand = (req.query.expand === "tweets")?true:false;
             if (user === undefined) res.json(user);
             else {
                 setTweetsHref(user, expand);
@@ -235,9 +238,11 @@ var setTweetsHref = (function(user, expand){
 
 // returned a copy of the object
 var getCopy = (function(obj){
-    var copy = obj.constructor();
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    if (obj !== undefined) {
+        var copy = obj.constructor();
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+        }
+        return copy;
     }
-    return copy;
 });
