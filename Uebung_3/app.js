@@ -26,6 +26,9 @@ var store = require('./blackbox/store.js');
 // creating the server application
 var app = express();
 
+// base url from server
+var baseUrl;
+
 // Middleware ************************************
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
@@ -64,10 +67,16 @@ app.use(function (req, res, next) {
     }
 });
 
+// set the baseUrl
+app.use(function (req, res, next) {
+    baseUrl = req.protocol + '://' + req.get('host');
+    next(); // all OK, call next handler
+});
+
 // Routes  TWEETS ***************************************
 
 app.get('/tweets', function (req, res, next) {
-    res.json(setObjURL(store.select('tweets'), req));
+    res.json(setObjURL(getCopy(store.select('tweets')), req));
 });
 app.post('/tweets', function (req, res, next) {
     var id = store.insert('tweets', req.body);
@@ -75,7 +84,7 @@ app.post('/tweets', function (req, res, next) {
     res.status(201).json(store.select('tweets', id));
 });
 app.get('/tweets/:id', function (req, res, next) {
-    res.json(setObjURL(store.select('tweets', req.params.id), req));
+    res.json(setObjURL(getCopy(store.select('tweets', req.params.id)), req));
 });
 app.delete('/tweets/:id', function (req, res, next) {
     store.remove('tweets', req.params.id);
@@ -91,14 +100,15 @@ app.put('/tweets/:id', function (req, res, next) {
 
 app.route('/users')
         .get(function (req, res, next) {
-            var userList = store.select('users');
-            var expand = req.query.expand;
+            var userList = getCopy(store.select('users'));
+            var expand = (req.query.expand === "tweets")?true:false;
             var user;
             for(var i in userList){
                 user = userList[i];
-                setTweetsHref(user, (expand === "tweets")?true:false);
+                setTweetsHref(user, expand);
             }
-            res.json(setObjURL(userList, req));
+            if (user === undefined) res.json(user);
+            else res.json(setObjURL(userList, req));
         })
         .post(function (req, res, next) {
             var id = store.insert('users', req.body);
@@ -108,11 +118,11 @@ app.route('/users')
 
 app.route('/users/:id')
         .get(function (req, res, next) {
-            var user = store.select('users', req.params.id);
-            var expand = req.query.expand;
+            var user = getCopy(store.select('users', req.params.id));
+            var expand = (req.query.expand === "tweets")?true:false;
             if (user === undefined) res.json(user);
             else {
-                setTweetsHref(user, (expand === "tweets")?true:false);
+                setTweetsHref(user, expand);
                 res.json(setObjURL(user, req));
             };
         })
@@ -129,10 +139,10 @@ app.route('/users/:id')
             var patchElements = Object.keys(patchObj);
             var user = store.select('users', req.params.id);
             for(var i in patchElements){
-                user.patchElements[i] = patchObj.patchElements[i];
+                user[patchElements[i]] = patchObj[patchElements[i]];
             }
             store.replace('users', req.params.id, user);
-            res.status(200).end();
+            res.status(200).res.json(user);
         });
         
 // CatchAll for the rest (unfound routes/resources ********
@@ -185,32 +195,32 @@ app.listen(3000, function (err) {
 
 // set the href to objects
 var setObjURL = (function(obj, req){
-    
-    var baseUrl = req.protocol + '://' + req.get('host') + url.parse(req.url).pathname;
-    
+    var objUrl = baseUrl + url.parse(req.url).pathname;
+    // if obj is a list always make an object with href and items
+    // items is a list of objects and each gets a href
     if (obj instanceof Array){
         for(var o in obj){
-            obj[o].href = baseUrl + obj[o].id;
+            obj[o].href = objUrl + "/" + obj[o].id;
         };
         obj = {
-            href: baseUrl,
+            href: objUrl,
             items: obj
         };
+    // else only set href to object
     }else {
-        obj.href = baseUrl;
+        obj.href = objUrl;
     }
-    
     return obj;
 });
 
 // set tweets-href to user
 // if expand true, tweets are expanded
 var setTweetsHref = (function(user, expand){
-    var baseUrl = "http://localhost:3000";
     var listOfTweets = store.select('tweets');
     var tweet;
     var tempObj;
     var tempList = [];
+    // check all tweets, if creator === user
     for(var i in listOfTweets){
         tweet = listOfTweets[i];
         if(tweet.creator.href === baseUrl + "/users/" + user.id){
@@ -219,7 +229,15 @@ var setTweetsHref = (function(user, expand){
             tempList.push(tempObj);
         };
     };
-    //console.log(tempList);
+    //  add only attribut tweets, if user has tweets
     if (tempList.length > 0)user.tweets = tempList;
-    return user;
+});
+
+// returned a copy of the object
+var getCopy = (function(obj){
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    }
+    return copy;
 });
