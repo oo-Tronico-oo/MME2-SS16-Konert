@@ -8,6 +8,7 @@
  * TODO: Look at the Routes-section (starting line 68) and start there to add your code 
  * 
  * @author Johannes Konert
+ * @editBy Lisa Bitterling, Christoph Kozielski, Nico Nauendorf
  * @licence CC BY-SA 4.0
  *
  */
@@ -25,6 +26,12 @@ var store = require('./blackbox/store.js');
 
 // creating the server application
 var app = express();
+
+// base url from server
+var baseUrl;
+
+// if tweets expand (boolean)
+var expand;
 
 // Middleware ************************************
 app.use(express.static(path.join(__dirname, 'public')));
@@ -64,6 +71,13 @@ app.use(function (req, res, next) {
     }
 });
 
+// set the baseUrl and expand boolean
+app.use(function (req, res, next) {
+    baseUrl = req.protocol + '://' + req.get('host');
+    expand = req.query.expand === "tweets";
+    next(); // all OK, call next handler
+});
+
 // Routes  TWEETS ***************************************
 
 app.get('/tweets', function (req, res, next) {
@@ -92,7 +106,6 @@ app.put('/tweets/:id', function (req, res, next) {
 app.route('/users')
         .get(function (req, res, next) {
             var userList = getCopy(store.select('users'));
-            var expand = (req.query.expand === "tweets")?true:false;
             var user;
             for(var i in userList){
                 user = userList[i];
@@ -110,7 +123,6 @@ app.route('/users')
 app.route('/users/:id')
         .get(function (req, res, next) {
             var user = getCopy(store.select('users', req.params.id));
-            var expand = (req.query.expand === "tweets")?true:false;
             if (user === undefined) res.json(user);
             else {
                 setTweetsHref(user, expand);
@@ -186,20 +198,20 @@ app.listen(3000, function (err) {
 
 // set the href to objects
 var setObjURL = (function(obj, req){
-    var baseUrl = req.protocol + '://' + req.get('host') + url.parse(req.url).pathname;
+    var objUrl = baseUrl + url.parse(req.url).pathname;
     // if obj is a list always make an object with href and items
     // items is a list of objects and each gets a href
     if (obj instanceof Array){
         for(var o in obj){
-            obj[o].href = baseUrl + "/" + obj[o].id;
+            obj[o].href = objUrl + "/" + obj[o].id;
         };
         obj = {
-            href: baseUrl,
+            href: objUrl,
             items: obj
         };
     // else only set href to object
     }else {
-        obj.href = baseUrl;
+        obj.href = objUrl;
     }
     return obj;
 });
@@ -207,7 +219,6 @@ var setObjURL = (function(obj, req){
 // set tweets-href to user
 // if expand true, tweets are expanded
 var setTweetsHref = (function(user, expand){
-    var baseUrl = "http://localhost:3000";
     var listOfTweets = store.select('tweets');
     var tweet;
     var tempObj;
@@ -227,9 +238,11 @@ var setTweetsHref = (function(user, expand){
 
 // returned a copy of the object
 var getCopy = (function(obj){
-    var copy = obj.constructor();
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+    if (obj !== undefined) {
+        var copy = obj.constructor();
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+        }
+        return copy;
     }
-    return copy;
 });
