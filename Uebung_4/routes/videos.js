@@ -24,21 +24,45 @@ var requiredKeys = {title: 'string', src: 'string', length: 'number'};
 var optionalKeys = {description: 'string', playcount: 'number', ranking: 'number'};
 var internalKeys = {id: 'number', timestamp: 'number'};
 
+var allowedKeys = ["id", "timestamp", "title", "src", "length", "description", "playcount", "ranking"];
 
 // routes **********************
+
+/**
+ * Middleware for 'filter' keys in objects
+ */
+videos.use(function(req, res, next) {
+    if (req.method === "GET" && req.query.filter) {
+        var filter = req.query.filter.replace(" ", "").split(",");
+        filter.forEach(function(item) {
+            if (allowedKeys.indexOf(item) === -1) {
+                var err = new Error("Filter not allowed!", item);
+                err.status = 400;
+                next(err);
+            }
+        });
+        res.locals.items = {"filter": filter};
+    }
+    next();
+});
+
 videos.route('/')
     .get(function(req, res, next) {
-        // TODO
         var vids = store.select("video");
         if (vids === undefined) res.status(204).end();
-        else res.status(200).json(vids).end();
+        if (res.locals.items && res.locals.items.filter) {
+            vids.forEach(function(vid) {
+                clearNotAllowed(vid, res.locals.items.filter);
+            });
+            res.status(200).json(vids).end();
+        } else res.status(200).json(vids).end();
     })
     .post(function(req, res, next) {
         var vid = req.body;
         try {
             // Check if required keys are set and internal key "timestamp" is not set
             if (!vid.title || !vid.src || !vid.length) throw new Error("required keys (title, src, length) must be set!", vid);
-            if (vid.length < 0 || vid.playcount < 0 || vid.ranking < 0) throw new Error("corrupted parameter (length, playcount, ranking", vid);
+            if (vid.length < 0 || vid.playcount < 0 || vid.ranking < 0) throw new Error("corrupted parameter (length, playcount, ranking)", vid);
             if (vid.timestamp) throw new Error("timestamp must not be set on insert!", vid);
 
             // Check if optional keys are set, else set default values
@@ -73,7 +97,12 @@ videos.route("/:id")
     .get(function(req, res, next) {
         var vid = store.select("video", req.params.id);
         if (vid === undefined) res.status(204).end();
-        else res.status(200).json(vid).end();
+        else {
+            if (res.locals.items && res.locals.items.filter) {
+                clearNotAllowed(vid, res.locals.items.filter);
+            }
+            res.status(200).json(vid).end();
+        }
     })
     .put(function(req, res, next) {
         var id = req.params.id;
@@ -98,27 +127,27 @@ videos.route("/:id")
     });
 
 // this middleware function can be used, if you like (or remove it)
-videos.use(function(req, res, next){
-    // if anything to send has been added to res.locals.items
-    if (res.locals.items) {
-        // then we send it as json and remove it
-        res.json(res.locals.items);
-        delete res.locals.items;
-    } else {
-        // otherwise we set status to no-content
-        res.set('Content-Type', 'application/json');
-        res.status(204).end(); // no content;
-    }
-});
+// videos.use(function(req, res, next){
+//     // if anything to send has been added to res.locals.items
+//     if (res.locals.items) {
+//         // then we send it as json and remove it
+//         res.json(res.locals.items);
+//         delete res.locals.items;
+//     } else {
+//         // otherwise we set status to no-content
+//         res.set('Content-Type', 'application/json');
+//         res.status(204).end(); // no content;
+//     }
+// });
 
 /**
  * deletes all not allowed keys in the obj object
  * @param obj the object to check for forbidden keys
  */
-var clearNotAllowed = function(obj) {
-    var allowedKeys = ["id", "timestamp", "title", "src", "length", "description", "playcount", "ranking"];
+var clearNotAllowed = function(obj, filter) {
+    var allowed = filter || allowedKeys;
     Object.keys(obj).forEach(function(key) {
-        if (allowedKeys.indexOf(key) === -1) delete obj[key];
+        if (allowed.indexOf(key) === -1) delete obj[key];
     });
     return obj;
 };

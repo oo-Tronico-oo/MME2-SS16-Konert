@@ -59,6 +59,7 @@ describe('Task 2.a Filter', function() {
                     should.not.exist(err);
                     res.should.be.json();
                     res.body.should.have.keys('src', 'title');
+                    // res.body.should.have.keys('src', 'title', 'id');          // Just in Case (works: get error here)
                     res.body.should.have.property('title', videoCorrectMin.title);
                     done();
                 });
