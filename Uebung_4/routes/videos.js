@@ -117,10 +117,10 @@ videos.use(function(req, res, next){
  */
 var clearNotAllowed = function(obj) {
     var allowedKeys = ["id", "timestamp", "title", "src", "length", "description", "playcount", "ranking"];
-    for (key of Object.keys(obj)) {
+    Object.keys(obj).forEach(function(key) {
         if (allowedKeys.indexOf(key) === -1) delete obj[key];
-    }
+    });
     return obj;
-}
+};
 
 module.exports = videos;
