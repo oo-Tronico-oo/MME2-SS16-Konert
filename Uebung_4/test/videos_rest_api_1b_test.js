@@ -247,7 +247,6 @@ describe('Task 1.b JSON Error data', function() {
                 .delete('/'+videoCorrect1Result.id)
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
                 .expect(codes.nocontent)
                 .end(function(err, res) {
                     should.not.exist(err);
