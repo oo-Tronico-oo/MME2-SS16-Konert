@@ -26,36 +26,123 @@ var internalKeys = {id: 'number', timestamp: 'number'};
 
 var allowedKeys = ["id", "timestamp", "title", "src", "length", "description", "playcount", "ranking"];
 
-// routes **********************
-
+// **************************************************************************************************** middlewares
 /**
- * Middleware for 'filter' keys in objects
+ * string for multiple errors, so the user get all at once and not just the first one on every request
+ * @type {string}
+ */
+var errText = "";
+/**
+ * filter query (should we use default values instead?)
  */
 videos.use(function(req, res, next) {
     if (req.method === "GET" && req.query.filter) {
         var filter = req.query.filter.replace(" ", "").split(",");
+        var filterErr = "Filter not allowed: ";
+        // check if all filters are valid
         filter.forEach(function(item) {
             if (allowedKeys.indexOf(item) === -1) {
-                var err = new Error("Filter not allowed!", item);
-                err.status = 400;
-                next(err);
+                filterErr += item + ", ";
             }
         });
-        res.locals.items = {"filter": filter};
+        if (filterErr !== "Filter not allowed: ") {
+            errText = filterErr.slice(0, -2) + "; ";
+            next();
+        } else {
+            if (!res.locals.items) res.locals.items = {};
+            res.locals.items.filter = filter;
+            next();
+        }
+    } else {
+        next();
     }
-    next();
 });
 
+/**
+ * limit query (should we use default values instead?)
+ */
+videos.use(function(req, res, next) {
+    if (req.method === "GET" && req.query.limit) {
+        var lim = parseInt(req.query.limit);
+        if (isNaN(lim)) {
+            errText += "limit is not a number or empty; ";
+            next();
+        } else if (lim < 1) {
+            errText += "limit must be greater than 0 (zero); ";
+            next();
+        } else {
+            if (!res.locals.items) res.locals.items = {};
+            res.locals.items.limit = lim;
+            next();
+        }
+    } else {
+        next();
+    }
+});
+
+/**
+ * offset query (should we use default values instead?)
+ */
+videos.use(function(req, res, next) {
+    if (req.method === "GET" && req.query.offset) {
+        var off = parseInt(req.query.offset);
+        if (isNaN(off)) {
+            errText += "offset is not a number or empty; ";
+            next();
+        } else if (off < 0) {
+            errText += "offset must be 0 (zero) or greater; ";
+            next();
+        } else {
+            if (!res.locals.items) res.locals.items = {};
+            res.locals.items.offset = off;
+            next();
+        }
+    } else {
+        next();
+    }
+});
+
+/**
+ * error handler (skipped if none)
+ */
+videos.use(function(req, res, next) {
+    if (errText !== "") {
+        var err = new Error(errText);
+        err.status = 400;
+        errText = "";
+        next(err);
+    } else {
+        next();
+    }
+});
+
+// **************************************************************************************************** routes
 videos.route('/')
     .get(function(req, res, next) {
         var vids = store.select("video");
         if (vids === undefined) res.status(204).end();
-        if (res.locals.items && res.locals.items.filter) {
-            vids.forEach(function(vid) {
-                clearNotAllowed(vid, res.locals.items.filter);
-            });
-            res.status(200).json(vids).end();
-        } else res.status(200).json(vids).end();
+        if (res.locals.items) {
+            var filter = res.locals.items.filter;
+            var limit = res.locals.items.limit;
+            var offset = res.locals.items.offset;
+            if (filter) {
+                vids.forEach(function(vid) {
+                    clearNotAllowed(vid, filter);
+                });
+            }
+            if (limit || offset) {
+                offset = offset || 0;
+                if (offset >= vids.length) {
+                    var err = new Error("offset higher than database length");
+                    err.status = 400;
+                    next(err);
+                    return;
+                }
+                limit = limit || vids.length;
+                vids = vids.slice(offset, limit + offset);
+            }
+        }
+        res.status(200).json(vids).end();
     })
     .post(function(req, res, next) {
         var vid = req.body;
@@ -94,7 +181,7 @@ videos.route('/')
     });
 
 videos.route("/:id")
-    .get(function(req, res, next) {
+    .get(function(req, res) {
         var vid = store.select("video", req.params.id);
         if (vid === undefined) res.status(204).end();
         else {
@@ -104,7 +191,7 @@ videos.route("/:id")
             res.status(200).json(vid).end();
         }
     })
-    .put(function(req, res, next) {
+    .put(function(req, res) {
         var id = req.params.id;
         var vid = req.body;
         vid = store.replace("video", id, vid).select("video", id);
@@ -114,7 +201,7 @@ videos.route("/:id")
         try {
             var id = req.params.id;
             var vid = store.remove("video", id);
-            res.status(204).set('Content-Type', "application/json").end();
+            res.status(204).type('json').end();
         } catch (err) {
             err.status = 404;
             next(err);
@@ -126,23 +213,11 @@ videos.route("/:id")
         next(err);
     });
 
-// this middleware function can be used, if you like (or remove it)
-// videos.use(function(req, res, next){
-//     // if anything to send has been added to res.locals.items
-//     if (res.locals.items) {
-//         // then we send it as json and remove it
-//         res.json(res.locals.items);
-//         delete res.locals.items;
-//     } else {
-//         // otherwise we set status to no-content
-//         res.set('Content-Type', 'application/json');
-//         res.status(204).end(); // no content;
-//     }
-// });
-
 /**
  * deletes all not allowed keys in the obj object
- * @param obj the object to check for forbidden keys
+ * @param obj (Object) the object to check for forbidden keys
+ * @param filter (Array) the Array that should be checked
+ * @returns {*}
  */
 var clearNotAllowed = function(obj, filter) {
     var allowed = filter || allowedKeys;
