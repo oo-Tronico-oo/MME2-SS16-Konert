@@ -183,7 +183,7 @@ videos.route('/')
 videos.route("/:id")
     .get(function(req, res) {
         var vid = store.select("video", req.params.id);
-        if (vid === undefined) res.status(204).end();
+        if (vid === undefined) res.status(404).end();
         else {
             if (res.locals.items && res.locals.items.filter) {
                 clearNotAllowed(vid, res.locals.items.filter);
@@ -192,10 +192,15 @@ videos.route("/:id")
         }
     })
     .put(function(req, res) {
-        var id = req.params.id;
-        var vid = req.body;
-        vid = store.replace("video", id, vid).select("video", id);
-        res.status(200).json(vid).end();
+        try {
+            var id = req.params.id;
+            var vid = req.body;
+            vid = store.replace("video", id, vid).select("video", id);
+            res.status(200).json(vid).end();
+        } catch (err) {
+            err.status = 404;
+            next(err);
+        } 
     })
     .delete(function(req, res, next) {
         try {
