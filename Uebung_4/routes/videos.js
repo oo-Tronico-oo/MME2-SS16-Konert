@@ -256,6 +256,20 @@ videos.route("/:id")
             next(err);
         }
     })
+    .patch(function(req, res, next) {
+        var id = req.params.id;
+        var patch = req.body;
+        if (JSON.stringify(patch) === JSON.stringify({"playcount" : "+1"})) {
+            var vid = store.select("video", id);
+            vid.playcount++;
+            store.replace("video", id, vid);
+            res.status(200).type("json").end();
+        } else {
+            var err = new Error("Sent patch object is not correct", patch);
+            err.status = 400;
+            next(err);
+        }
+    })
     .all(function (req, res, next) {
         var err = new Error("Wrong method");
         err.status = 405;
