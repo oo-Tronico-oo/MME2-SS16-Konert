@@ -64,3 +64,39 @@ module.exports.videoCorrect4 = {
     playcount: 1843221,
     ranking: 100
 };
+
+module.exports.videoSearch1 = {
+    title : "spain",
+    description : "Took this video in Spain.",
+    src : "bla",
+    length : 9001,
+    playcount: 7450,
+    ranking: 10
+};
+
+module.exports.videoSearch2 = {
+    title : "beuth",
+    description : "some text about beuth.",
+    src : "bla",
+    length : 720,
+    playcount: 42,
+    ranking: 245
+};
+
+module.exports.videoSearch3 = {
+    title : "berlin",
+    description : "some text about berlin.",
+    src : "bla",
+    length : 42,
+    playcount: 8245,
+    ranking: 24567
+};
+
+module.exports.videoSearch4 = {
+    title : "live of beuth",
+    description : "some other text about beuth.",
+    src : "bla",
+    length : 1337,
+    playcount: 9001,
+    ranking: 99
+};

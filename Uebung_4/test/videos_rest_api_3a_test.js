@@ -10,7 +10,7 @@
 var should = require('should');
 require('should-http');
 var request = require('supertest');
-var cfg = require('./config_for_tests');
+var cfg = require('./../test/config_for_tests');
 
 var baseURL = cfg.baseURL; // please change it in file config_for_tests.js
 var videoURL = cfg.videoURL;
@@ -19,13 +19,13 @@ var videoURL = cfg.videoURL;
 // some helper objects and function to be send to node ********************************************
 var videoURL = baseURL + 'videos';
 var codes = cfg.codes;
-var videoCorrectMin = cfg.videoCorrectMin;
-var videoCorrectMax = cfg.videoCorrectMax;
-var videoCorrect3 = cfg.videoCorrect3;
-var videoCorrect4 = cfg.videoCorrect4;
+var video1 = cfg.videoSearch1;
+var video2 = cfg.videoSearch2;
+var video3 = cfg.videoSearch3;
+var video4 = cfg.videoSearch4;
 
 // start of tests ********************************************************************************
-describe('Task 2.b Limits and Offset', function() {
+describe('Task 3.a browse through data', function() {
     var videoResults = [];
     var totalResults = [];
     var total = 0;
@@ -38,7 +38,7 @@ describe('Task 2.b Limits and Offset', function() {
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
                 .set('Content-Type', 'application/json')
-                .send(videoCorrectMin)
+                .send(video1)
                 .expect('Content-Type', /json/)
                 .expect(codes.created)
                 .end(function (err, res) {
@@ -56,7 +56,7 @@ describe('Task 2.b Limits and Offset', function() {
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
                 .set('Content-Type', 'application/json')
-                .send(videoCorrectMax)
+                .send(video2)
                 .expect('Content-Type', /json/)
                 .expect(codes.created)
                 .end(function (err, res) {
@@ -74,7 +74,7 @@ describe('Task 2.b Limits and Offset', function() {
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
                 .set('Content-Type', 'application/json')
-                .send(videoCorrect3)
+                .send(video3)
                 .expect('Content-Type', /json/)
                 .expect(codes.created)
                 .end(function (err, res) {
@@ -92,7 +92,7 @@ describe('Task 2.b Limits and Offset', function() {
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
                 .set('Content-Type', 'application/json')
-                .send(videoCorrect4)
+                .send(video4)
                 .expect('Content-Type', /json/)
                 .expect(codes.created)
                 .end(function (err, res) {
@@ -114,7 +114,7 @@ describe('Task 2.b Limits and Offset', function() {
                 .end(function(err, res){
                     should.not.exist(err);
                     res.should.be.json();
-                    res.body.length.should.be.above(3);
+                    res.body.length.should.be.equal(4);
                     total = res.body.length;
                     totalResults = res.body;
                     done();
@@ -122,10 +122,10 @@ describe('Task 2.b Limits and Offset', function() {
         });
     });
     // here start the real limit/offset tests with the data inserted above **************
-    describe("now testing limit and offset", function() {
-        it('should deliver 2 videos less on offset=2', function(done) {
+    describe("now testing search", function() {
+        it('should deliver 2 videos with title "beuth"', function(done) {
             request(videoURL)
-                .get('/?offset=2')
+                .get('/?title=beuth')
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -133,30 +133,13 @@ describe('Task 2.b Limits and Offset', function() {
                 .end(function(err, res){
                     should.not.exist(err);
                     res.should.be.json();
-                    res.body.length.should.be.equal(total - 2);
-                    res.body[0].should.containEql(totalResults[2]);
+                    res.body.length.should.be.equal(2);
                     done();
                 });
         });
-        it('should deliver all videos on offset=0', function(done) {
+        it('should deliver 1 video with title "spain"', function(done) {
             request(videoURL)
-                .get('/?offset=0')
-                .set('Accept-Version', '1.0')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(codes.success)
-                .end(function(err, res){
-                    should.not.exist(err);
-                    res.should.be.json();
-                    res.body.length.should.be.equal(total);
-                    res.body[0].should.containEql(totalResults[0]);
-                    res.body[total-1].should.containEql(totalResults[total-1]);
-                    done();
-                });
-        });
-        it('should deliver only the first video on limit=1', function(done) {
-            request(videoURL)
-                .get('/?limit=1')
+                .get('/?title=spain')
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -165,13 +148,25 @@ describe('Task 2.b Limits and Offset', function() {
                     should.not.exist(err);
                     res.should.be.json();
                     res.body.length.should.be.equal(1);
-                    res.body[0].should.containEql(totalResults[0]);
+                    done();
+                });
+        })
+        it('should get status 404 with search for "test"', function(done) {
+            request(videoURL)
+                .get('/?test=spain')
+                .set('Accept-Version', '1.0')
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(codes.wrongrequest)
+                .end(function(err, res){
+                    should.not.exist(err);
+                    res.should.be.json();
                     done();
                 });
         });
-        it('should deliver the last 2 items on offset='+(total-2)+'&limit=100', function(done) {
+        it('should deliver 1 video with title "beuth" & playcount "42"', function(done) {
             request(videoURL)
-                .get('/?limit=100&offset='+(total-2))
+                .get('/?title=beuth&playcount=42')
                 .set('Accept-Version', '1.0')
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -179,96 +174,12 @@ describe('Task 2.b Limits and Offset', function() {
                 .end(function(err, res){
                     should.not.exist(err);
                     res.should.be.json();
-                    res.body.length.should.be.equal(2);
-                    res.body[0].should.containEql(totalResults[total-2]);
-                    res.body[1].should.containEql(totalResults[total-1]);
-                    done();
-                });
-        });
-        it('should deliver the 2. and 3. element on offset=1&limit=2', function(done) {
-            request(videoURL)
-                .get('/?limit=2&offset=1')
-                .set('Accept-Version', '1.0')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(codes.success)
-                .end(function(err, res){
-                    should.not.exist(err);
-                    res.should.be.json();
-                    res.body.length.should.be.equal(2);
-                    res.body[0].should.containEql(totalResults[1]);
-                    res.body[1].should.containEql(totalResults[2]);
-                    done();
-                });
-        });
-        // bad offset/limit values
-        it('should detect a negative number in offset and send status 400', function(done) {
-            request(videoURL)
-                .get('/?offset=-1')
-                .set('Accept-Version', '1.0')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(codes.wrongrequest)
-                .end(function(err, res){
-                    should.not.exist(err);
-                    res.should.be.json();
-                    done();
-                });
-        });
-        it('should detect a negative number in limit and send status 400', function(done) {
-            request(videoURL)
-                .get('/?limit=-1')
-                .set('Accept-Version', '1.0')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(codes.wrongrequest)
-                .end(function(err, res){
-                    should.not.exist(err);
-                    res.should.be.json();
-                    done();
-                });
-        });
-        it('should detect a nonsense value in offset and limit and send status 400', function(done) {
-            request(videoURL)
-                .get('/?limit=no&offset=print')
-                .set('Accept-Version', '1.0')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(codes.wrongrequest)
-                .end(function(err, res){
-                    should.not.exist(err);
-                    res.should.be.json();
-                    done();
-                });
-        });
-        it('should not allow a limit of 0 and send status 400', function(done) {
-            request(videoURL)
-                .get('/?limit=0&offset=1')
-                .set('Accept-Version', '1.0')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(codes.wrongrequest)
-                .end(function(err, res){
-                    should.not.exist(err);
-                    res.should.be.json();
-                    done();
-                });
-        });
-        it('should not allow an offset equal or beyond the length if list and send status 400', function(done) {
-            request(videoURL)
-                .get('/?limit=2&offset='+total)
-                .set('Accept-Version', '1.0')
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(codes.wrongrequest)
-                .end(function(err, res){
-                    should.not.exist(err);
-                    res.should.be.json();
+                    res.body.length.should.be.equal(1);
                     done();
                 });
         });
     });
-    // delete the  posted videos at end if not already deleted...
+    // delete the posted videos at end if not already deleted...
     after(function(done) {
         var numDone = videoIDsCleanup.length;
         for (var i = 0; i < videoIDsCleanup.length; i++) {
