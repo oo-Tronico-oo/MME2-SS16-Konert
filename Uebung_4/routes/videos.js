@@ -24,6 +24,8 @@ var requiredKeys = {title: 'string', src: 'string', length: 'number'};
 var optionalKeys = {description: 'string', playcount: 'number', ranking: 'number'};
 var internalKeys = {id: 'number', timestamp: 'number'};
 
+var allTypsOfKeys = {title: 'string', src: 'string', length: 'number', description: 'string', playcount: 'number', ranking: 'number'};
+
 var allowedKeys = ["id", "timestamp", "title", "src", "length", "description", "playcount", "ranking"];
 var usedKeywords = ["filter", "limit", "offset"];
 
@@ -113,7 +115,6 @@ videos.use(function(req, res, next) {
             searchErr = searchErr.slice(0, -2) + "; ";
             errText += searchErr;
         }
-        // console.log(res.locals.items.search);
     }
     next();
 });
@@ -187,14 +188,11 @@ videos.route('/')
             // Check if required keys are set and internal key "timestamp" is not set
             if (!vid.title || !vid.src || !vid.length)
                 throw new Error("required keys (title, src, length) must be set!", vid);
+            
             Object.keys(vid).forEach(function(key){
-                if(typeof vid[key] !== requiredKeys[key] || typeof vid[key] !== optionalKeys[key])
+                if(typeof vid[key] !== allTypsOfKeys[key])
                     throw new Error("At least one of the required keys has the wrong type", vid);
             });
-//            if (typeof vid.title !== requiredKeys.title
-//                || typeof vid.src !== requiredKeys.src
-//                || typeof vid.length !== requiredKeys.length)
-//                throw new Error("At least one of the required keys has the wrong type", vid);
             if (vid.length < 0 || vid.playcount < 0 || vid.ranking < 0)
                 throw new Error("corrupted parameter (length, playcount, ranking)", vid);
             if (vid.timestamp)
