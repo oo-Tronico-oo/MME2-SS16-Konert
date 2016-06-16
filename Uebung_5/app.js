@@ -17,7 +17,7 @@ var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
 var requestLogger = require('morgan');
 var debug = require('debug')('me2u5:server');
-var morgan = require('morgan');
+// var morgan = require('morgan');
 
 // own modules
 var restAPIchecks = require('./restapi/request-checks.js');
@@ -34,7 +34,7 @@ var app = express();
 app.use(favicon(path.join(__dirname, 'public', 'images/faviconbeuth.ico')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
-app.use(morgan('tiny'));
+// app.use(morgan('tiny'));
 
 // logging
 app.use(requestLogger('dev'));
