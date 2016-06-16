@@ -15,24 +15,16 @@
 
 // modules
 var express = require('express');
-var logger = require('debug')('me2u4:videos');
-// var store = require('../blackbox/store');
+var logger = require('debug')('me2u5:videos');
 var middleware = require('../restapi/video-middlewares');
+var VideoModel = require('../models/video');
 
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/me2');
 
 var videos = express.Router();
 
-// if you like, you can use this for task 1.b:
-var requiredKeys = {title: 'string', src: 'string', length: 'number'};
-var optionalKeys = {description: 'string', playcount: 'number', ranking: 'number'};
-var internalKeys = {id: 'number', timestamp: 'number'};
-
-var allTypsOfKeys = {title: 'string', src: 'string', length: 'number', description: 'string', playcount: 'number', ranking: 'number'};
-
 var allowedKeys = ["id", "timestamp", "title", "src", "length", "description", "playcount", "ranking"];
-var usedKeywords = ["filter", "limit", "offset"];
 
 // **************************************************************************************************** middlewares
 videos.use(middleware);
@@ -87,42 +79,28 @@ videos.route('/')
         res.status(200).json(vids).end();
     })
     .post(function(req, res, next) {
-        var vid = req.body;
         try {
-            // Check if required keys are set and internal key "timestamp" is not set
-            if (!vid.title || !vid.src || !vid.length)
-                throw new Error("required keys (title, src, length) must be set!", vid);
-
-            Object.keys(vid).forEach(function(key){
-                if(typeof vid[key] !== allTypsOfKeys[key])
-                    throw new Error("At least one of the required keys has the wrong type", vid);
-            });
-            if (vid.length < 0 || vid.playcount < 0 || vid.ranking < 0)
-                throw new Error("corrupted parameter (length, playcount, ranking)", vid);
-            if (vid.timestamp)
-                throw new Error("timestamp must not be set on insert!", vid);
-
-            // Check if optional keys are set, else set default values
-            vid.description = vid.description || "";
-            vid.playcount = vid.playcount || 0;
-            vid.ranking = vid.ranking || 0;
-
-            // set timestamp
-            vid.timestamp = Date.now();
-
-            // remove all not allowed keys from object
-            vid = clearNotAllowed(vid);
-
-            // put in store and get new id (if no error appears) and then get new video from store
-            var id = store.insert("video", vid);
-            vid = store.select("video", id);
-
-            // send result
-            res.status(201).json(vid).end();
+            // Error for not allowed paths is thrown separately, must be catch here
+            var video = new VideoModel(req.body);
         } catch (err) {
+            // Hide using mongoose for users
+            // err = JSON.parse(JSON.stringify(err).replace(" and strict mode is set to throw", ""));
             err.status = 400;
             next(err);
         }
+        video.save(function(err) {
+            if (!err) {
+                res.status(201).json(video).end();
+            } else {
+                var errText = "";
+                Object.keys(err.errors).forEach(function(item) {
+                    errText += err.errors[item].name + ": " + err.errors[item].message +" \n";
+                });
+                err.message = errText + err.message;
+                err.status = 400;
+                next(err);
+            }
+        });
     })
     .all(function (req, res, next) {
         var err = new Error("Wrong method");
