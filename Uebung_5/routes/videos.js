@@ -1,6 +1,7 @@
 /** This module defines the routes for videos using the store.js as db memory
  *
  * @author Johannes Konert
+ * @contributingAuthors Lisa Bitterling, Christoph Kozielski, Nico Nauendorf
  * @licence CC BY-SA 4.0
  *
  * @module routes/videos
@@ -15,8 +16,11 @@
 // modules
 var express = require('express');
 var logger = require('debug')('me2u4:videos');
-var store = require('../blackbox/store');
+// var store = require('../blackbox/store');
 var middleware = require('../restapi/video-middlewares');
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/me2');
 
 var videos = express.Router();
 
@@ -88,7 +92,7 @@ videos.route('/')
             // Check if required keys are set and internal key "timestamp" is not set
             if (!vid.title || !vid.src || !vid.length)
                 throw new Error("required keys (title, src, length) must be set!", vid);
-            
+
             Object.keys(vid).forEach(function(key){
                 if(typeof vid[key] !== allTypsOfKeys[key])
                     throw new Error("At least one of the required keys has the wrong type", vid);
@@ -146,7 +150,7 @@ videos.route("/:id")
         } catch (err) {
             err.status = 400;
             next(err);
-        } 
+        }
     })
     .delete(function(req, res, next) {
         try {
