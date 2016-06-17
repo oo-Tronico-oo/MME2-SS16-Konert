@@ -32,51 +32,59 @@ videos.use(middleware);
 // **************************************************************************************************** routes
 videos.route('/')
     .get(function(req, res, next) {
-        var vids = store.select("video");
-        if (vids === undefined) {
-            res.status(204).end();
-            return;
-        }
-        if (res.locals.items) {
-            var filter = res.locals.items.filter;
-            var limit = res.locals.items.limit;
-            var offset = res.locals.items.offset;
-            var search = res.locals.items.search;
-            if (filter) {
-                vids.forEach(function(vid) {
-                    clearNotAllowed(vid, filter);
-                });
+        VideoModel.find({},function(err, docs) {
+            if (!err) {
+                if (docs.length > 0) res.status(200).json(docs).end();
+                else res.status(204).type("json").end();
+            } else {
+                next(err);
             }
-            if (limit || offset) {
-                offset = offset || 0;
-                if (offset >= vids.length) {
-                    var err = new Error("offset higher than database length");
-                    err.status = 400;
-                    next(err);
-                    return;
-                }
-                limit = limit || vids.length;
-                vids = vids.slice(offset, limit + offset);
-            }
-            if (search) {
-                Object.keys(search).forEach(function(key) {
-                    for (var i = 0; i < vids.length; i++) {
-                        if (typeof vids[i][key] === "string") {
-                            if (!(vids[i][key].includes(search[key]))) {
-                                vids.splice(i, 1);
-                                i--;
-                            }
-                        } else if (typeof vids[i][key] === "number") {
-                            if (vids[i][key] !== parseInt(search[key])) {
-                                vids.splice(i, 1);
-                                i--;
-                            }
-                        }
-                    }
-                });
-            }
-        }
-        res.status(200).json(vids).end();
+        });
+        // var vids = store.select("video");
+        // if (vids === undefined) {
+        //     res.status(204).end();
+        //     return;
+        // }
+        // if (res.locals.items) {
+        //     var filter = res.locals.items.filter;
+        //     var limit = res.locals.items.limit;
+        //     var offset = res.locals.items.offset;
+        //     var search = res.locals.items.search;
+        //     if (filter) {
+        //         vids.forEach(function(vid) {
+        //             clearNotAllowed(vid, filter);
+        //         });
+        //     }
+        //     if (limit || offset) {
+        //         offset = offset || 0;
+        //         if (offset >= vids.length) {
+        //             var err = new Error("offset higher than database length");
+        //             err.status = 400;
+        //             next(err);
+        //             return;
+        //         }
+        //         limit = limit || vids.length;
+        //         vids = vids.slice(offset, limit + offset);
+        //     }
+        //     if (search) {
+        //         Object.keys(search).forEach(function(key) {
+        //             for (var i = 0; i < vids.length; i++) {
+        //                 if (typeof vids[i][key] === "string") {
+        //                     if (!(vids[i][key].includes(search[key]))) {
+        //                         vids.splice(i, 1);
+        //                         i--;
+        //                     }
+        //                 } else if (typeof vids[i][key] === "number") {
+        //                     if (vids[i][key] !== parseInt(search[key])) {
+        //                         vids.splice(i, 1);
+        //                         i--;
+        //                     }
+        //                 }
+        //             }
+        //         });
+        //     }
+        // }
+        // res.status(200).json(vids).end();
     })
     .post(function(req, res, next) {
         try {

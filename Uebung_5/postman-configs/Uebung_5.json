@@ -2,7 +2,7 @@
 	"variables": [],
 	"info": {
 		"name": "Übung 5",
-		"_postman_id": "28072008-0b08-aa8e-dee7-ac7d3eee9a6a",
+		"_postman_id": "37106153-0dad-8429-2479-4f291194ccaa",
 		"description": "Some request for Übung 5 in MME2 2016",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
@@ -26,8 +26,7 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"title\"         : \"test title\",\n    \"src\"           : \"www.google.com\",\n    \"length\"        : 42\n}"
-						},
-						"description": "title, src and length set, all correct type"
+						}
 					},
 					"response": []
 				},
@@ -46,8 +45,7 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"title\"         : \"test title\",\n    \"src\"           : \"www.google.com/mysearc34sdfhe\",\n    \"length\"        : 123,\n    \"description\"   : \"test description\",\n    \"ranking\"       : 456,\n    \"playcount\"     : 789\n}"
-						},
-						"description": "all possible paths set, all types correct"
+						}
 					},
 					"response": []
 				},
@@ -66,8 +64,7 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"_id\"           : 1337,\n    \"timestamp\"     : \"test timestamp\",\n    \"title\"         : 4815162342,\n    \"src\"           : 54574902010,\n    \"length\"        : \"length\",\n    \"description\"   : 159357,\n    \"ranking\"       : \"tröt\",\n    \"playcount\"     : \"check\"\n}"
-						},
-						"description": "all possible paths set, all types wrong, _id and timestamp set too"
+						}
 					},
 					"response": []
 				},
@@ -86,8 +83,33 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"title\"         : \"test title\",\n    \"src\"           : \"www.google.com\",\n    \"length\"        : 42,\n    \"isAwesome\"     : true\n}"
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Aufgabe 1.c",
+			"description": "",
+			"item": [
+				{
+					"name": "request /videos without params",
+					"request": {
+						"url": "localhost:3000/videos",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
 						},
-						"description": "isAwesome with boolean true"
+						"description": ""
 					},
 					"response": []
 				}
