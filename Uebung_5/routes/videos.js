@@ -31,8 +31,8 @@ videos.use(middleware);
 
 // **************************************************************************************************** routes
 videos.route('/')
-    .get(function(req, res, next) {
-        VideoModel.find({},function(err, docs) {
+    .get(function (req, res, next) {
+        VideoModel.find({}, function (err, docs) {
             if (!err) {
                 if (docs.length > 0) res.status(200).json(docs).end();
                 else res.status(204).type("json").end();
@@ -86,7 +86,7 @@ videos.route('/')
         // }
         // res.status(200).json(vids).end();
     })
-    .post(function(req, res, next) {
+    .post(function (req, res, next) {
         try {
             // Error for not allowed paths is thrown separately, must be catch here
             var video = new VideoModel(req.body);
@@ -96,13 +96,13 @@ videos.route('/')
             err.status = 400;
             next(err);
         }
-        video.save(function(err) {
+        video.save(function (err) {
             if (!err) {
                 res.status(201).json(video).end();
             } else {
                 var errText = "";
-                Object.keys(err.errors).forEach(function(item) {
-                    errText += err.errors[item].name + ": " + err.errors[item].message +" \n";
+                Object.keys(err.errors).forEach(function (item) {
+                    errText += err.errors[item].name + ": " + err.errors[item].message + " \n";
                 });
                 err.message = errText + err.message;
                 err.status = 400;
@@ -117,50 +117,111 @@ videos.route('/')
     });
 
 videos.route("/:id")
-    .get(function(req, res) {
-        var vid = store.select("video", req.params.id);
-        if (vid === undefined) res.status(204).end();
-        else {
-            if (res.locals.items && res.locals.items.filter) {
-                clearNotAllowed(vid, res.locals.items.filter);
+    .get(function (req, res) {
+        VideoModel.findById(req.params.id, function (err, doc) {
+            if (!err) {
+                if (doc) res.status(200).json(doc).end();
+                else res.status(204).type("json").end();
+            } else {
+                // TODO: When does this happen, what to do here? (null if id not found)
             }
-            res.status(200).json(vid).end();
-        }
+        });
+        // TODO: implement filtering for paths
+        // var vid = store.select("video", req.params.id);
+        // if (vid === undefined) res.status(204).end();
+        // else {
+        //     if (res.locals.items && res.locals.items.filter) {
+        //         clearNotAllowed(vid, res.locals.items.filter);
+        //     }
+        //     res.status(200).json(vid).end();
+        // }
     })
-    .put(function(req, res) {
-        try {
-            var id = req.params.id;
-            var vid = req.body;
-            vid = store.replace("video", id, vid).select("video", id);
-            res.status(200).json(vid).end();
-        } catch (err) {
+    .put(function (req, res, next) {
+        // TODO: correct this function (does not work for now)
+        if (req.params.id === req.body._id) {
+            VideoModel.findById(req.params.id, function (err, doc) {
+                if (!err) {
+                    if (doc) {
+                        console.log(doc);
+                        Object.keys(doc).forEach(function (path) {
+                            console.log(path + " : " + doc[path]);
+                            if (VideoModel.schema.paths[path])
+                                doc.$__[path] = req.body[path] || VideoModel.schema.paths[path].defaultValue;
+                        });
+                        VideoModel.findByIdAndUpdate(req.params.id, doc.$__,
+                            {"new": true, runValidators: true}, function (err, doc) {
+                                if (!err) {
+                                    res.status(200).json(doc).end();
+                                } else {
+                                    next(err);
+                                }
+                            });
+                    } else {
+                        var err = new Error("id not found", req.params.id);
+                        err.status = 404;
+                        next(err);
+                    }
+                } else {
+                    // TODO: When does this happen, what to do here? (null if id not found)
+                }
+            });
+        } else {
+            var err = new Error("id in param and object don't match");
             err.status = 400;
             next(err);
         }
+        // try {
+        //     var id = req.params.id;
+        //     var vid = req.body;
+        //     vid = store.replace("video", id, vid).select("video", id);
+        //     res.status(200).json(vid).end();
+        // } catch (err) {
+        //     err.status = 400;
+        //     next(err);
+        // }
     })
-    .delete(function(req, res, next) {
-        try {
-            var id = req.params.id;
-            store.remove("video", id);
-            res.status(204).type('json').end();
-        } catch (err) {
-            err.status = 404;
-            next(err);
-        }
+    .delete(function (req, res, next) {
+        // TODO: implement delete, remove default
+        res.status(204).type("json").end();
+        // try {
+        //     var id = req.params.id;
+        //     store.remove("video", id);
+        //     res.status(204).type('json').end();
+        // } catch (err) {
+        //     err.status = 404;
+        //     next(err);
+        // }
     })
-    .patch(function(req, res, next) {
+    .patch(function (req, res, next) { // Patch implementation is idempotent
         var id = req.params.id;
         var patch = req.body;
-        if (JSON.stringify(patch) === JSON.stringify({"playcount" : "+1"})) {
-            var vid = store.select("video", id);
-            vid.playcount++;
-            store.replace("video", id, vid);
-            res.status(200).type("json").end();
-        } else {
-            var err = new Error("Sent patch object is not correct", patch);
-            err.status = 400;
-            next(err);
+        if (patch && patch.id && patch.id === id) {
+            // TODO: implement patch, remove default (if statement should be correct)
+            res.status(204).type("json").end();
+            VideoModel.findByIdAndUpdate(id, patch,
+                {"new": true, runValidators: true}, // return new object instead of old one and rerun validators
+                function (err, doc) {
+                    if (!err && doc) {
+                        res.status(200).json(doc).end();
+                    } else {
+                        var err = new Error("id not found", id);
+                        err.status = 404;
+                        next(err);
+                    }
+                });
         }
+        // var id = req.params.id;
+        // var patch = req.body;
+        // if (JSON.stringify(patch) === JSON.stringify({"playcount": "+1"})) {
+        //     var vid = store.select("video", id);
+        //     vid.playcount++;
+        //     store.replace("video", id, vid);
+        //     res.status(200).type("json").end();
+        // } else {
+        //     var err = new Error("Sent patch object is not correct", patch);
+        //     err.status = 400;
+        //     next(err);
+        // }
     })
     .all(function (req, res, next) {
         var err = new Error("Wrong method");
@@ -168,15 +229,16 @@ videos.route("/:id")
         next(err);
     });
 
+// TODO: remove this function, when rest is finished
 /**
  * deletes all not allowed keys in the obj object
  * @param obj (Object) the object to check for forbidden keys
  * @param filter (Array) the Array that should be checked
  * @returns {*}
  */
-var clearNotAllowed = function(obj, filter) {
+var clearNotAllowed = function (obj, filter) {
     var allowed = filter || allowedKeys;
-    Object.keys(obj).forEach(function(key) {
+    Object.keys(obj).forEach(function (key) {
         if (allowed.indexOf(key) === -1) delete obj[key];
     });
     return obj;
