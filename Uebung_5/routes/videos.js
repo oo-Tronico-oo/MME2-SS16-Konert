@@ -142,7 +142,6 @@ videos.route("/:id")
             VideoModel.findById(req.params.id, function (err, doc) {
                 if (!err) {
                     if (doc) {
-                        console.log(doc);
                         Object.keys(doc).forEach(function (path) {
                             console.log(path + " : " + doc[path]);
                             if (VideoModel.schema.paths[path])
@@ -181,8 +180,14 @@ videos.route("/:id")
         // }
     })
     .delete(function (req, res, next) {
-        // TODO: implement delete, remove default
-        res.status(204).type("json").end();
+        VideoModel.findByIdAndRemove(re.params.id, function (err, doc) {
+            if (!err) {
+                if (doc) res.status(200).json(doc).end();
+                else res.status(404).type("json").end();
+            } else {
+                // TODO: When does this happen?
+            }
+        });
         // try {
         //     var id = req.params.id;
         //     store.remove("video", id);

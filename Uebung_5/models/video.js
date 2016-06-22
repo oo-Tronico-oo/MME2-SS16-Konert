@@ -71,10 +71,10 @@ var videoSchema = new Schema({
         min: 0,
         default: 0
     }
-}, {
-    strict : "throw",
+}, { //options object
+    strict : "throw", // throw error if key is not defined in schema
     timestamps: {
-        createdAt: "timestamp"
+        createdAt: "timestamp" // rename "createdAt" to "timestamp"
     }
 });
 
