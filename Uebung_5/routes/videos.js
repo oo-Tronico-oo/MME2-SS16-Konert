@@ -148,20 +148,39 @@ videos.route("/:id")
             if (bodyObj) {
                 // TODO: correct this function (does not work for now)
                 if (req.params.id === bodyObj._id) {
+                    VideoModel.findById(req.params.id, function (err, doc) {
+                        if (!err) {
+                            if (doc && doc.updatedAt.getTime() === Date.parse(bodyObj.updatedAt)) { //Bonusaufgabe 3
+                                clearNotAllowed(bodyObj); //delete _id, __v, timestamp and updatedAt in body object
+                                try {
+                                    var video = new VideoModel(bodyObj);
 
-                    clearNotAllowed(bodyObj); //delete _id and __v in body object
-                    var video = new VideoModel(bodyObj);
-                    
-                    Object.keys(video).forEach(function(key){
-                        if(key !== "_id" && key !== "__v" && bodyObj[key]) bodyObj[key] = video[key]; 
-                    });
+                                    Object.keys(video).forEach(function (key) {
+                                        if (key !== "_id" && key !== "__v" && bodyObj[key])
+                                            bodyObj[key] = video[key];
+                                    });
 
-                    VideoModel.findByIdAndUpdate(req.params.id, bodyObj,
-                            {"new": true, runValidators: true}, function (err, doc) {
-                        if (!err && doc) {
-                            res.status(200).json(doc).end();
+                                    VideoModel.findByIdAndUpdate(req.params.id, bodyObj,
+                                            {"new": true, runValidators: true}, function (err, doc) {
+                                        if (!err && doc) {
+                                            res.status(200).json(doc).end();
+                                        } else {
+                                            next(err);
+                                        }
+                                    });
+                                } catch (err) {
+                                    // Hide using mongoose for users
+                                    // err = JSON.parse(JSON.stringify(err).replace(" and strict mode is set to throw", ""));
+                                    err.status = 400;
+                                    next(err);
+                                }
+                            } else{
+                                var error = new Error("updateAT different");
+                                error.status = 409;
+                                next(error);
+                            }
                         } else {
-                            next(err);
+                            // TODO: When does this happen, what to do here? (null if id not found)
                         }
                     });
 
@@ -280,7 +299,7 @@ videos.route("/:id")
  * @returns {*}
  */
 var clearNotAllowed = function (obj, filter) {
-    var notAllowed = ["_id", "__v"]; //filter || allowedKeys;
+    var notAllowed = ["_id", "__v", "updatedAt", "timestamp"]; //filter || allowedKeys;
     Object.keys(obj).forEach(function (key) {
         if (notAllowed.indexOf(key) >= 0)
             delete obj[key];
