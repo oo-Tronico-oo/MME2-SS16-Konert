@@ -180,7 +180,7 @@ videos.route("/:id")
         // }
     })
     .delete(function (req, res, next) {
-        VideoModel.findByIdAndRemove(re.params.id, function (err, doc) {
+        VideoModel.findByIdAndRemove(req.params.id, function (err, doc) {
             if (!err) {
                 if (doc) res.status(200).json(doc).end();
                 else res.status(404).type("json").end();
@@ -200,7 +200,13 @@ videos.route("/:id")
     .patch(function (req, res, next) { // Patch implementation is idempotent
         var id = req.params.id;
         var patch = req.body;
-        if (patch && patch.id && patch.id === id) {
+        if (patch) {
+            if (patch.id && patch.id !== id){
+                var err = new Error("id in body is false", id);
+                err.status = 404;
+                next(err);
+            }
+         
             // TODO: implement patch, remove default (if statement should be correct)
             res.status(204).type("json").end();
             VideoModel.findByIdAndUpdate(id, patch,
