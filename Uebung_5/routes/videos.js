@@ -32,12 +32,16 @@ videos.use(middleware);
 // **************************************************************************************************** routes
 videos.route('/')
         .get(function (req, res, next) {
-            VideoModel.find({}, function (err, docs) {
+            var filter;                                         //filter = undefined
+            if (res.locals.items && res.locals.items.filter) {
+                 filter = res.locals.items.filter;
+                 filter = filter.toString().replace(',',' ');
+            } 
+            VideoModel.find({}, filter, function (err, docs) {  //filter wird nicht berücksichtigt wenn filter = undefined
                 if (!err) {
                     if (docs.length > 0)
                         res.status(200).json(docs).end();
-                    else
-                        res.status(204).type("json").end();
+                    else res.status(204).type("json").end();
                 } else {
                     next(err);
                 }
@@ -47,8 +51,6 @@ videos.route('/')
             //     res.status(204).end();
             //     return;
             // }
-            // if (res.locals.items) {
-            //     var filter = res.locals.items.filter;
             //     var limit = res.locals.items.limit;
             //     var offset = res.locals.items.offset;
             //     var search = res.locals.items.search;
