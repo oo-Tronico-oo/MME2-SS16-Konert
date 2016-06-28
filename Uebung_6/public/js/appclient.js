@@ -38,9 +38,10 @@ require(['jquery', 'backbone', 'videoCollection'],
                     var videos = new VideoCollection();
                     videos.fetch({
                         success: function () {
-                            console.log(videos.length + " Videos empfangen!")
+                            console.log(videos.length + " Videos empfangen!");
                         },
                         error: function () {
+                            console.log("error fetch");
                         }
                     });
                 }
