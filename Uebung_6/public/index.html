@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Johannes Konert">
+    <meta name="description" content="Musterlösung zu Übungsblatt 1">
+    <meta name="keywords" content="Videos">
+    <title>miniYoutube</title>
+
+    <!-- connect the CSS style and the javascript  -->
+    <link rel="stylesheet" href="css/app.css">
+    <script src="js/app.js" async defer></script>
+
+    <!-- optional nice font import -->
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Raleway'>
+    <!-- optional extra CSS style for smartphones -->
+    <link rel="stylesheet" href="css/app-smart.css" media="only screen
+                                                    and (min-device-width:320px)
+                                                    and (max-device-width:480px)">
+</head>
+<body>
+<header>
+    <h1>Willkommen</h1>
+    auf der Demo-Seite zum Einbinden von Videos.
+</header>
+<aside>
+    <h1>Weitere Videoseiten</h1>
+    <nav>
+        <a href="http://www.youtube.de">YouTube</a>
+        <a href="http://www.vimeo.com">Vimeo</a>
+        <a href="http://clipfish.de">Clipfish</a>
+    </nav>
+</aside>
+<main>
+    <section>
+        <h1>Aktuelles Video:</h1>
+        <video controls>
+            <source src="http://techslides.com/demos/sample-videos/small.mp4" type="video/mp4">
+        </video>
+        <div class="controls">
+            <button name="play" title="Abspielen"></button>
+            <button name="pause" title="Pause"></button>
+            <button name="stop" title="Stop"></button>
+        </div>
+    </section>
+    <section>
+        <h1>Nächstes Video:</h1>
+        <video controls>
+            <source src="http://techslides.com/demos/sample-videos/small.ogv" type="video/ogg">
+        </video>
+        <div class="controls">
+            <button name="play" title="Abspielen"></button>
+            <button name="pause" title="Pause"></button>
+            <button name="stop" title="Stop"></button>
+        </div>
+    </section>
+    <section>
+        <h1>Letztes Video:</h1>
+        <video controls>
+            <source src="http://techslides.com/demos/sample-videos/small.webm" type="video/webm">
+        </video>
+        <div class="controls">
+            <button name="play" title="Abspielen"></button>
+            <button name="pause" title="Pause"></button>
+            <button name="stop" title="Stop"></button>
+        </div>
+
+    </section>
+</main>
+<footer>
+    <details>
+        <summary>erstellte von Johannes Konert</summary>
+        als Beispiel-Lösung für Übungsblatt 1 im Kurs MME2 / WiSe1516
+    </details>
+</footer>
+</body>
+</html>
