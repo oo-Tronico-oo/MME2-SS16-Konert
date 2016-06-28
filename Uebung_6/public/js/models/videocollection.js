@@ -6,11 +6,11 @@
  */
 
 /* requireJS module definition */
-define(['backbone'],
-        function (Backbone) {
+define(['backbone', 'videoModel'],
+        function (Backbone, VideoModel) {
 
             var VideoCollection = Backbone.Collection.extend({
-                model: Backbone.VideoModel,
+                model: VideoModel,
                 url: '/videos',
                 initialize: function () {
                     // after constructor code

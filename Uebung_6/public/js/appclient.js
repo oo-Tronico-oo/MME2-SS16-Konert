@@ -8,7 +8,9 @@ requirejs.config({
     paths: {
         jquery: './_lib/jquery-1.11.3',
         underscore: './_lib/underscore-1.8.3',
-        backbone: './_lib/backbone-1.2.3'
+        backbone: './_lib/backbone-1.2.3',
+        videoModel: './models/video',
+        videoCollection: './models/videocollection'
     },
     shim: {
         underscore: {
