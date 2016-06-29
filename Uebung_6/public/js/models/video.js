@@ -19,7 +19,10 @@ define(['backbone'],
                     description: '',
                     timestamp: new Date(),
                     playcount: 0,
-                    ranking: 0
+                    ranking: 0,
+                    src: undefined,
+                    title: undefined,
+                    length: undefined
                 },
                 initialize: function () {
                     // after constructor code
@@ -30,6 +33,7 @@ define(['backbone'],
                     if (!attr.src) erText += "- src must be set!\n";
                     if (attr.scr && !urlRegex.test(attr.scr)) erText += "- src is not a valid URL!\n";
                     if (!attr.length) erText += "- length must be set!\n";
+                    if (attr.length && !attr.length<0) erText += "- length cant't be smaller than 0!\n";
 
                     if (erText !== "\n") return erText;
                 }
