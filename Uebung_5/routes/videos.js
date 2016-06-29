@@ -6,6 +6,8 @@
  *
  * @module routes/videos
  * @type {Router}
+ * @description exports a router module for expressjs for video endpoint,
+ * that writes, reads and updates objects in the mongo database
  */
 
 // remember: in modules you have 3 variables given by CommonJS
